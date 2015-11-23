@@ -21,7 +21,7 @@ setup(
     author_email='torsten.irlaender@googlemail.com',
     url='http://github.com/toirl/pytest-sqlalchemy/',
     py_modules=['pytest_sqlalchemy'],
-    entry_points={'pytest11': ['rage = pytest_sqlalchemy']},
+    entry_points={'pytest11': ['sqlalchemy = pytest_sqlalchemy']},
     install_requires=['pytest>=2.0'],
     classifiers=[
         'Development Status :: 3 - Alpha',
