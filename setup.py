@@ -22,7 +22,7 @@ setup(
     url='http://github.com/toirl/pytest-sqlalchemy/',
     py_modules=['pytest_sqlalchemy'],
     entry_points={'pytest11': ['sqlalchemy = pytest_sqlalchemy']},
-    install_requires=['pytest>=2.0'],
+    install_requires=['pytest>=2.0', 'sqlalchemy'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Topic :: Software Development :: Testing',
