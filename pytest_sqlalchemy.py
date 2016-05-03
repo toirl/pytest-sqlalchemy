@@ -3,8 +3,21 @@
 
 import pytest
 
+
 @pytest.fixture(scope="module")
 def engine(request, sqlalchemy_connect_url, app_config):
+    """Engine configuration.
+    See http://docs.sqlalchemy.org/en/latest/core/engines.html
+    for more details.
+
+    :sqlalchemy_connect_url: Connection URL to the database. E.g
+    postgresql://scott:tiger@localhost:5432/mydatabase 
+    :app_config: Path to a ini config file containing the sqlalchemy.url
+    config variable in the DEFAULT section.
+    :returns: Engine instance
+
+    """
+    pass
     if app_config:
         from sqlalchemy import engine_from_config
         engine = engine_from_config(app_config)
@@ -60,7 +73,30 @@ def sqlalchemy_connect_url(request):
     return request.config.getoption("--sqlalchemy-connect-url")
 
 
+@pytest.fixture(scope="session")
+def app_config(request):
+    """Example of a config file:
+
+    [DEFAULT]
+    sqlalchemy.url = postgresql://scott:tiger@localhost/test
+    """
+    import ConfigParser
+    config_path = request.config.getoption("--sqlalchemy-config-file")
+    if config_path:
+        config = ConfigParser.ConfigParser()
+        config.read(config_path)
+        return config.defaults()
+    return None
+
+
 def pytest_addoption(parser):
     parser.addoption("--sqlalchemy-connect-url", action="store",
                      default=None,
                      help="Name of the database to connect to")
+
+    parser.addoption("--sqlalchemy-config-file", action="store",
+                     default=None,
+                     help="Path to a config file containing the "
+                     "'sqlalchemy.url' variable in the DEFAULT section "
+                     "of a ini file to define the connect "
+                     "url.")
