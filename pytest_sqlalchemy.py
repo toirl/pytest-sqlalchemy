@@ -17,7 +17,6 @@ def engine(request, sqlalchemy_connect_url, app_config):
     :returns: Engine instance
 
     """
-    pass
     if app_config:
         from sqlalchemy import engine_from_config
         engine = engine_from_config(app_config)
