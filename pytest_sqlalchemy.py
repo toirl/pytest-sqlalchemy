@@ -4,7 +4,7 @@
 import pytest
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def engine(request, sqlalchemy_connect_url, app_config):
     """Engine configuration.
     See http://docs.sqlalchemy.org/en/latest/core/engines.html
