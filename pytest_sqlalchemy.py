@@ -72,6 +72,12 @@ def sqlalchemy_connect_url(request):
     return request.config.getoption("--sqlalchemy-connect-url")
 
 
+# Config options
+@pytest.fixture(scope="session")
+def connect_uri(request, sqlalchemy_connect_url):
+    return sqlalchemy_connect_url
+
+
 @pytest.fixture(scope="session")
 def app_config(request):
     """Example of a config file:
