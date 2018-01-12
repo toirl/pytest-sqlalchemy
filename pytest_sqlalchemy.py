@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import pytest
+import sqlalchemy_utils.functions
 
 
 @pytest.fixture(scope="session")
@@ -34,8 +35,28 @@ def engine(request, sqlalchemy_connect_url, app_config):
     return engine
 
 
+@pytest.fixture(scope="session")
+def db_schema(request, engine, sqlalchemy_keep_db):
+    if not sqlalchemy_manage_db:
+        return
+
+    db_exists = sqlalchemy_utils.functions.database_exists(engine.url)
+    if db_exists and not sqlalchemy_keep_db:
+        raise RuntimeError("DB exists, remove it before proceeding")
+
+    if not db_exists:
+        sqlalchemy_utils.functions.create_database(engine.url)
+
+    if not sqlalchemy_keep_db:
+        def fin():
+            print ("Tearing down DB")
+            sqlalchemy_utils.functions.drop_database(engine.url)
+
+        request.addfinalizer(fin)
+
+
 @pytest.fixture(scope="module")
-def connection(request, engine):
+def connection(request, engine, db_schema):
     connection = engine.connect()
 
     def fin():
@@ -72,10 +93,19 @@ def sqlalchemy_connect_url(request):
     return request.config.getoption("--sqlalchemy-connect-url")
 
 
-# Config options
 @pytest.fixture(scope="session")
 def connect_uri(request, sqlalchemy_connect_url):
     return sqlalchemy_connect_url
+
+
+@pytest.fixture(scope="session")
+def sqlalchemy_manage_db(request):
+    return request.config.getoption("--sqlalchemy-manage-db")
+
+
+@pytest.fixture(scope="session")
+def sqlalchemy_keep_db(request):
+    return request.config.getoption("--sqlalchemy-keep-db")
 
 
 @pytest.fixture(scope="session")
@@ -109,3 +139,12 @@ def pytest_addoption(parser):
                      "'sqlalchemy.url' variable in the DEFAULT section "
                      "of a ini file to define the connect "
                      "url.")
+
+    parser.addoption("--sqlalchemy-manage-db", action="store_true",
+                     default=None,
+                     help="Automatically creates and drops database")
+
+    parser.addoption("--sqlalchemy-keep-db", action="store_true",
+                     default=None,
+                     help="Do not delete database after test suite, "
+                     "allowing for its reuse.")
