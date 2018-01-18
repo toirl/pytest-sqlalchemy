@@ -41,7 +41,7 @@ def engine(request, sqlalchemy_connect_url, app_config):
 
 
 @pytest.fixture(scope="session")
-def db_schema(request, engine, sqlalchemy_keep_db):
+def db_schema(request, engine, sqlalchemy_manage_db, sqlalchemy_keep_db):
     if not sqlalchemy_manage_db:
         return
 
