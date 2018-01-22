@@ -16,7 +16,7 @@ setup(
     license='MIT',
     description='pytest plugin with sqlalchemy related fixtures',
     #long_description=read("README.rst"),
-    version='0.1.1',
+    version='0.2.0',
     author='Torsten Irländer',
     author_email='torsten.irlaender@googlemail.com',
     url='http://github.com/toirl/pytest-sqlalchemy/',
