@@ -31,6 +31,7 @@ def engine(request, sqlalchemy_connect_url, app_config):
     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
     if engine.url.database != ':memory:' and xdist_suffix is not None:
         engine.url.database = '{}_{}'.format(engine.url.database, xdist_suffix)
+        engine = create_engine(engine.url)  # override engine
 
     def fin():
         print ("Disposing engine")
