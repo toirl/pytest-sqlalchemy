@@ -12,4 +12,4 @@ This plugin provides the following fixtures:
 ## Invoke
 You need to provide the connection URL for the engine when invoking the pytest command::
 
-    py-test --sqlalchemy-connect-url="postgresql://scott:tiger@localhost:5432/mydatabase"
+    pytest --sqlalchemy-connect-url="postgresql://scott:tiger@localhost:5432/mydatabase"
