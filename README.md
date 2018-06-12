@@ -2,12 +2,36 @@
 SQLAlchemy related fixtures to handle connections and transactions with SQLAlchemy in tests.
 
 ## Fixtures
-This plugin provides the following fixtures:
+This plugin provides the following fixtures which gives access to the SQLAlchmey objects of the same name.
 
-1. **engine** The engine used to connect to the database. Scope is "module".
-1. **connection** An open connection to the database. Scope is "module".
-1. **transaction** A started transaction on the connection. Transaction will be rolled back. No Scope.
-1. **dbsession** A sqlalchemy session *not* bound to any model. No scope.
+* **engine** The engine used to connect to the database. Scope is "module".
+* **connection** An open connection to the database. Scope is "module".
+
+See [Working with Engines and Conncetions](http://docs.sqlalchemy.org/en/latest/core/connections.html#module-sqlalchemy.engine) on how to use this fixtues.
+
+* **transaction** A started transaction on the connection. Transaction will be rolled back. No Scope.
+
+See [Using Transactions](http://docs.sqlalchemy.org/en/latest/core/connections.html#using-transactions) on how to use this fixtures
+
+* **dbsession** A sqlalchemy session *not* bound to any model. No scope.
+
+See [Session Basisc](http://docs.sqlalchemy.org/en/latest/orm/session_basics.html#session-basics) to learn about how to use sessions.
+
+## Usage
+The fixtures can be used in your tests like any other [Pytest Fixtures](https://docs.pytest.org/en/3.6.1/fixture.html).
+
+**Example**:
+
+```python
+import pytest
+from pytest_sqlalchemy import connection
+
+def test_connection(connection):
+    # Do fancy stuff with the connection.
+    # Note you will not need to close the connection. This is done
+    # automatically when the scope (module) of the fixtures ends.
+    assert connection
+````
 
 ## Invoke
 You need to provide the connection URL for the engine when invoking the pytest command::
