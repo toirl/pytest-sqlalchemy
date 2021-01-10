@@ -37,3 +37,10 @@ def test_connection(connection):
 You need to provide the connection URL for the engine when invoking the pytest command::
 
     pytest --sqlalchemy-connect-url="postgresql://scott:tiger@localhost:5432/mydatabase"
+    
+Or override the `sqlalchemy_connect_url` fixture on your conftest file:
+
+    @pytest.fixture()
+    def sqlalchemy_connect_url():
+        return 'postgresql://scott:tiger@localhost:5432/mydatabase'
+
