@@ -40,7 +40,7 @@ You need to provide the connection URL for the engine when invoking the pytest c
     
 Or override the `sqlalchemy_connect_url` fixture on your conftest file:
 
-    @pytest.fixture()
+    @pytest.fixture(scope="session")
     def sqlalchemy_connect_url():
         return 'postgresql://scott:tiger@localhost:5432/mydatabase'
 
