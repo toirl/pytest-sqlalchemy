@@ -1,6 +1,8 @@
 # pytest-sqlalchemy
 SQLAlchemy related fixtures to handle connections and transactions with SQLAlchemy in tests.
 
+**This package isn't actively maintained anymore.** I wrote it years ago to make testing more easy in my own project. I was (and still am) happy that it is useful to some other people. However I don't find time to work on this project anymore. If you are interested in taking over the maintainance, please reach out to me.
+
 ## Fixtures
 This plugin provides the following fixtures which gives access to the SQLAlchmey objects of the same name.
 
