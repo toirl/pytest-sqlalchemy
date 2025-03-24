@@ -15,9 +15,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pytest>=2.0",
-    "sqlalchemy",
-    "SQLAlchemy-Utils"
+    "pytest>=8.0",
+    "sqlalchemy>=1.4",
+    "SQLAlchemy-Utils>=0.41"
 ]
 
 [project.urls]
