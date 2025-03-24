@@ -9,5 +9,5 @@ python:
   - pypy3
 
 script:
-  - python setup.py install
-  - py.test --sqlalchemy-connect-url="sqlite:///foo.sqlite"
+  - uv sync
+  - uv run pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"
