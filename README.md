@@ -46,3 +46,16 @@ Or override the `sqlalchemy_connect_url` fixture on your conftest file:
     def sqlalchemy_connect_url():
         return 'postgresql://scott:tiger@localhost:5432/mydatabase'
 
+## Development
+
+To get going, in a checkout:
+
+```bash
+uv sync
+```
+
+You can then run the tests with:
+
+```bash
+uv run pytest
+```

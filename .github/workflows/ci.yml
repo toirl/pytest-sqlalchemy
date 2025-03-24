@@ -1,0 +1,42 @@
+name: "Continuous Integration"
+
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  tests:
+    name: python ${{ matrix.python-version }} tests, ${{ matrix.uv-resolution }} dependencies
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+        uv-resolution:
+          - "lowest"
+          - "highest"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache-dependency-glob: "**/pyproject.toml"
+          cache-suffix: ${{ matrix.uv-resolution }}
+
+      - name: Install the project
+        run: uv sync --all-extras --dev --resolution ${{ matrix.uv-resolution }}
+
+      - name: Run tests
+        run: |
+          uv run pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"

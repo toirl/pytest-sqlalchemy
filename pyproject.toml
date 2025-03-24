@@ -1,0 +1,37 @@
+[project]
+name = "pytest-sqlalchemy"
+version = "0.2.0"
+description = "pytest plugin with sqlalchemy related fixtures"
+authors = [
+    { name = "Torsten Irländer", email = "torsten.irlaender@googlemail.com" }
+]
+license = {text = "MIT"}
+readme = "README.rst"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Topic :: Software Development :: Testing",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pytest>=8.0",
+    "sqlalchemy>=1.4",
+    "SQLAlchemy-Utils>=0.41"
+]
+
+[dependency-groups]
+dev = [
+    # https://github.com/sqlalchemy/sqlalchemy/pull/12459:
+    "greenlet>=3.1"
+]
+
+[project.urls]
+Homepage = "http://github.com/toirl/pytest-sqlalchemy/"
+
+[project.entry-points.pytest11]
+sqlalchemy = "pytest_sqlalchemy"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
