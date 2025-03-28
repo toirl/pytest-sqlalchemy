@@ -101,7 +101,7 @@ jobs:
             export DB_URL=sqlite:///foo.sqlite
           fi
           export COVERAGE_FILE=.coverage.$GITHUB_JOB
-          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m pytest --cov --sqlalchemy-connect-url=$DB_URL
+          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m coverage run -m pytest --sqlalchemy-connect-url=$DB_URL
           coverage report 
 
       - name: Upload coverage data
