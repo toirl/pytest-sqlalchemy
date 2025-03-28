@@ -87,18 +87,17 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
           cache-suffix: ${{ matrix.uv-resolution }}
 
-      - name: Run tests with SQLite
-        if: matrix.database == 'sqlite'
+      - name: Run tests
         run: |
-          uv run --all-extras --dev --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"
-
-      - name: Run tests with PostgreSQL
-        if: matrix.database == 'postgres'
-        run: |
-          uv run --all-extras --dev --with psycopg2 --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="postgresql://postgres:postgres@localhost:5432/test_db"
-
-      - name: Run tests with MySQL
-        if: matrix.database == 'mysql'
-        # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
-        run: |
-          uv run  --all-extras --dev --with mysqlclient --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="mysql://root:mysql@127.0.0.1:3306/test_db"
+          # Install software and run tests
+          if [ "${{ matrix.database }}" = "postgres" ]; then
+            export WITH='--with psycopg2-binary'
+            export DB_URL=postgresql://postgres:postgres@localhost:5432/test_db
+          elif [ "${{ matrix.database }}" = "mysql" ]; then
+            export WITH='--with mysqlclient'
+            # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
+            export DB_URL=mysql://root:mysql@127.0.0.1:3306/test_db
+          else
+            export DB_URL=sqlite:///foo.sqlite
+          fi
+          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url=$DB_URL
