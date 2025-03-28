@@ -16,8 +16,9 @@ classifiers = [
 ]
 dependencies = [
     "pytest>=8.0",
+    "pytest-cov>=6.0.0",
     "sqlalchemy>=1.4",
-    "SQLAlchemy-Utils>=0.41"
+    "SQLAlchemy-Utils>=0.41",
 ]
 
 [project.urls]

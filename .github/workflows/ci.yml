@@ -87,18 +87,63 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
           cache-suffix: ${{ matrix.uv-resolution }}
 
-      - name: Run tests with SQLite
-        if: matrix.database == 'sqlite'
+      - name: Run tests
         run: |
-          uv run --all-extras --dev --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"
+          # Install software and run tests
+          if [ "${{ matrix.database }}" = "postgres" ]; then
+            export WITH='--with psycopg2-binary'
+            export DB_URL=postgresql://postgres:postgres@localhost:5432/test_db
+          elif [ "${{ matrix.database }}" = "mysql" ]; then
+            export WITH='--with mysqlclient'
+            # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
+            export DB_URL=mysql://root:mysql@127.0.0.1:3306/test_db
+          else
+            export DB_URL=sqlite:///foo.sqlite
+          fi
+          export COVERAGE_FILE=.coverage.$GITHUB_JOB
+          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m coverage run -m pytest --sqlalchemy-connect-url=$DB_URL
+          coverage report 
 
-      - name: Run tests with PostgreSQL
-        if: matrix.database == 'postgres'
-        run: |
-          uv run --all-extras --dev --with psycopg2 --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="postgresql://postgres:postgres@localhost:5432/test_db"
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-${{ matrix.python-version }}-${{ matrix.uv-resolution }}-${{ matrix.database }}
+          path: .coverage.*
+          include-hidden-files: true
+          if-no-files-found: ignore
 
-      - name: Run tests with MySQL
-        if: matrix.database == 'mysql'
-        # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
+  coverage:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-data-*
+          merge-multiple: true
+
+      - name: Combine coverage and fail if it's <100%.
         run: |
-          uv run  --all-extras --dev --with mysqlclient --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="mysql://root:mysql@127.0.0.1:3306/test_db"
+          uv tool install coverage
+
+          coverage combine
+          coverage html --skip-covered --skip-empty
+
+          # Report and write to summary.
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
+          # Report again and fail if under 100%.
+          coverage report --fail-under=100
+
+      - name: Upload HTML report if check failed.
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: htmlcov
+        if: ${{ failure() }}
