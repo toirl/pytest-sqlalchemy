@@ -1,6 +1,5 @@
 name: "Continuous Integration"
 
-
 on:
   push:
     branches: [master]
@@ -10,7 +9,7 @@ on:
 
 jobs:
   tests:
-    name: python ${{ matrix.python-version }} tests, ${{ matrix.uv-resolution }} dependencies
+    name: python ${{ matrix.python-version }}, ${{ matrix.database }}, ${{ matrix.uv-resolution }} deps
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,9 +20,63 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+        database:
+          - sqlite
         uv-resolution:
-          - "lowest-direct"
-          - "highest"
+          - highest
+        include:
+          # Add lowest-direct resolution test for oldest and newest Python
+          - python-version: "3.9"
+            database: sqlite
+            uv-resolution: lowest-direct
+          - python-version: "3.13"
+            database: sqlite
+            uv-resolution: lowest-direct
+
+          # Also test against Postgres and MySQL for oldest and newest Python
+          - python-version: "3.9"
+            database: postgres
+            uv-resolution: highest
+          - python-version: "3.13"
+            database: postgres
+            uv-resolution: highest
+          - python-version: "3.9"
+            database: mysql
+            uv-resolution: highest
+          - python-version: "3.13"
+            database: mysql
+            uv-resolution: highest
+
+    services:
+      postgres:
+        # workaround for https://github.com/actions/runner/issues/822
+        image: ${{ matrix.database == 'postgres' && 'postgres:latest' || '' }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      mysql:
+        # workaround for https://github.com/actions/runner/issues/822
+        image: ${{ matrix.database == 'mysql' && 'mysql:latest' || '' }}
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -34,9 +87,18 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
           cache-suffix: ${{ matrix.uv-resolution }}
 
-      - name: Install the project
-        run: uv sync --all-extras --dev --resolution ${{ matrix.uv-resolution }}
-
-      - name: Run tests
+      - name: Run tests with SQLite
+        if: matrix.database == 'sqlite'
         run: |
-          uv run pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"
+          uv run --all-extras --dev --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"
+
+      - name: Run tests with PostgreSQL
+        if: matrix.database == 'postgres'
+        run: |
+          uv run --all-extras --dev --with psycopg2 --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="postgresql://postgres:postgres@localhost:5432/test_db"
+
+      - name: Run tests with MySQL
+        if: matrix.database == 'mysql'
+        # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
+        run: |
+          uv run  --all-extras --dev --with mysqlclient --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="mysql://root:mysql@127.0.0.1:3306/test_db"
