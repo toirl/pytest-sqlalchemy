@@ -97,7 +97,19 @@ jobs:
             export WITH='--with mysqlclient'
             # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
             export DB_URL=mysql://root:mysql@127.0.0.1:3306/test_db
-          else
-            export DB_URL=sqlite:///foo.sqlite
           fi
-          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url=$DB_URL
+          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m coverage run -m pytest --sqlalchemy-connect-url=$DB_URL
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-${{ matrix.python-version }}-${{ matrix.uv-resolution }}-${{ matrix.database }}
+          path: .coverage.*
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  coverage:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cjw296/python-action/check-coverage@v1
