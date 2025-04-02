@@ -33,6 +33,12 @@ build-backend = "setuptools.build_meta"
 
 [tool.coverage.run]
 source = ["pytest_sqlalchemy", "tests"]
+parallel = true
 
 [tool.pytest.ini_options]
 norecursedirs = ["tests/examples"]
+
+[dependency-groups]
+dev = [
+    "pytest-xdist>=3.6.1",
+]
