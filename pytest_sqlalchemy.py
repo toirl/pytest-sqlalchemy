@@ -28,10 +28,11 @@ def engine(request, sqlalchemy_connect_url, app_config):
         raise RuntimeError("Can not establish a connection to the database")
 
     # Put a suffix like _gw0, _gw1 etc on xdist processes
-    xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
+    xdist_suffix = getattr(request.config, 'workerinput', {}).get('workerid')
+    print(xdist_suffix)
     if engine.url.database != ':memory:' and xdist_suffix is not None:
-        engine.url.database = '{}_{}'.format(engine.url.database, xdist_suffix)
-        engine = create_engine(engine.url)  # override engine
+        url = engine.url.set(database=f'{engine.url.database}_{xdist_suffix}')
+        engine = create_engine(url)  # override engine
 
     def fin():
         print ("Disposing engine")
