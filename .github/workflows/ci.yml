@@ -87,18 +87,32 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
           cache-suffix: ${{ matrix.uv-resolution }}
 
-      - name: Run tests with SQLite
-        if: matrix.database == 'sqlite'
-        run: |
-          uv run --all-extras --dev --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="sqlite:///foo.sqlite"
+      - name: Install the project and dependencies
+        run: uv sync --all-extras --dev --resolution ${{ matrix.uv-resolution }}
 
-      - name: Run tests with PostgreSQL
-        if: matrix.database == 'postgres'
+      - name: Run tests
         run: |
-          uv run --all-extras --dev --with psycopg2 --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="postgresql://postgres:postgres@localhost:5432/test_db"
+          # Install software and run tests
+          if [ "${{ matrix.database }}" = "postgres" ]; then
+            export WITH='--with psycopg2-binary'
+            export DB_URL=postgresql://postgres:postgres@localhost:5432/test_db
+          elif [ "${{ matrix.database }}" = "mysql" ]; then
+            export WITH='--with mysqlclient'
+            # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
+            export DB_URL=mysql://root:mysql@127.0.0.1:3306/test_db
+          fi
+          uv run --no-sync $WITH --resolution ${{ matrix.uv-resolution }} -m coverage run -m pytest --sqlalchemy-connect-url=$DB_URL
 
-      - name: Run tests with MySQL
-        if: matrix.database == 'mysql'
-        # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
-        run: |
-          uv run  --all-extras --dev --with mysqlclient --resolution ${{ matrix.uv-resolution }} -m pytest --sqlalchemy-connect-url="mysql://root:mysql@127.0.0.1:3306/test_db"
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-${{ matrix.python-version }}-${{ matrix.uv-resolution }}-${{ matrix.database }}
+          path: .coverage.*
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+  coverage:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cjw296/python-action/check-coverage@v1
