@@ -122,10 +122,7 @@ def app_config(request):
     [DEFAULT]
     sqlalchemy.url = postgresql://scott:tiger@localhost/test
     """
-    try:
-        import ConfigParser
-    except ImportError:
-        import configparser as ConfigParser
+    import configparser as ConfigParser
 
     config_path = request.config.getoption("--sqlalchemy-config-file")
     if config_path:
