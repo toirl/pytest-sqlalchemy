@@ -27,6 +27,12 @@ Homepage = "http://github.com/toirl/pytest-sqlalchemy/"
 [project.entry-points.pytest11]
 sqlalchemy = "pytest_sqlalchemy"
 
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pytest-xdist>=3.6.1",
+]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
@@ -35,10 +41,13 @@ build-backend = "setuptools.build_meta"
 source = ["pytest_sqlalchemy", "tests"]
 parallel = true
 
+[tool.mypy]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[[tool.mypy.overrides]]
+module = "sqlalchemy_utils.*"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 norecursedirs = ["tests/examples"]
-
-[dependency-groups]
-dev = [
-    "pytest-xdist>=3.6.1",
-]

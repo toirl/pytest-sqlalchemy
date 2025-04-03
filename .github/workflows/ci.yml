@@ -116,3 +116,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: cjw296/python-action/check-coverage@v1
+
+  typing:
+    name: python ${{ matrix.python-version }} type checking
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.13"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache-dependency-glob: "**/pyproject.toml"
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Run tests
+        run: uv run mypy pytest_sqlalchemy.py tests

@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from typing import Any, Dict, Mapping, Optional
+
 import pytest
 import sqlalchemy_utils.functions
+from pytest import FixtureRequest, Parser
+from sqlalchemy import engine_from_config
+from sqlalchemy.engine import Connection, create_engine, Engine
 
 
 @pytest.fixture(scope="session")
-def engine(request, sqlalchemy_connect_url, app_config):
+def engine(request: FixtureRequest, sqlalchemy_connect_url: Optional[str], app_config: Optional[Dict[str, str]]) -> Engine:
     """Engine configuration.
     See http://docs.sqlalchemy.org/en/latest/core/engines.html
     for more details.
@@ -19,10 +24,8 @@ def engine(request, sqlalchemy_connect_url, app_config):
 
     """
     if app_config:
-        from sqlalchemy import engine_from_config
         engine = engine_from_config(app_config)
     elif sqlalchemy_connect_url:
-        from sqlalchemy.engine import create_engine
         engine = create_engine(sqlalchemy_connect_url)
     else:
         raise RuntimeError("Can not establish a connection to the database")
@@ -34,7 +37,7 @@ def engine(request, sqlalchemy_connect_url, app_config):
         url = engine.url.set(database=f'{engine.url.database}_{xdist_suffix}')
         engine = create_engine(url)  # override engine
 
-    def fin():
+    def fin() -> None:
         print ("Disposing engine")
         engine.dispose()
 
@@ -43,7 +46,7 @@ def engine(request, sqlalchemy_connect_url, app_config):
 
 
 @pytest.fixture(scope="session")
-def db_schema(request, engine, sqlalchemy_manage_db, sqlalchemy_keep_db):
+def db_schema(request: FixtureRequest, engine: Engine, sqlalchemy_manage_db: bool, sqlalchemy_keep_db: bool) -> Optional[None]:
     if not sqlalchemy_manage_db:
         return
 
@@ -55,7 +58,7 @@ def db_schema(request, engine, sqlalchemy_manage_db, sqlalchemy_keep_db):
         sqlalchemy_utils.functions.create_database(engine.url)
 
     if not sqlalchemy_keep_db:
-        def fin():
+        def fin() -> None:
             print ("Tearing down DB")
             sqlalchemy_utils.functions.drop_database(engine.url)
 
@@ -63,10 +66,10 @@ def db_schema(request, engine, sqlalchemy_manage_db, sqlalchemy_keep_db):
 
 
 @pytest.fixture(scope="module")
-def connection(request, engine, db_schema):
+def connection(request: FixtureRequest, engine: Engine, db_schema: Optional[None]) -> Connection:
     connection = engine.connect()
 
-    def fin():
+    def fin() -> None:
         print ("Closing connection")
         connection.close()
 
@@ -75,12 +78,12 @@ def connection(request, engine, db_schema):
 
 
 @pytest.fixture()
-def transaction(request, connection):
+def transaction(request: FixtureRequest, connection: Connection) -> Connection:
     """Will start a transaction on the connection. The connection will
     be rolled back after it leaves its scope."""
     transaction = connection.begin()
 
-    def fin():
+    def fin() -> None:
         print ("Rollback")
         transaction.rollback()
 
@@ -89,43 +92,40 @@ def transaction(request, connection):
 
 
 @pytest.fixture()
-def dbsession(request, connection):
+def dbsession(request: FixtureRequest, connection: Connection) -> Any:
     from sqlalchemy.orm import sessionmaker
     return sessionmaker()(bind=connection)
 
 
 # Config options
 @pytest.fixture(scope="session")
-def sqlalchemy_connect_url(request):
+def sqlalchemy_connect_url(request: FixtureRequest) -> Optional[str]:
     return request.config.getoption("--sqlalchemy-connect-url")
 
 
 @pytest.fixture(scope="session")
-def connect_uri(request, sqlalchemy_connect_url):
+def connect_uri(request: FixtureRequest, sqlalchemy_connect_url: Optional[str]) -> Optional[str]:
     return sqlalchemy_connect_url
 
 
 @pytest.fixture(scope="session")
-def sqlalchemy_manage_db(request):
+def sqlalchemy_manage_db(request: FixtureRequest) -> Optional[bool]:
     return request.config.getoption("--sqlalchemy-manage-db")
 
 
 @pytest.fixture(scope="session")
-def sqlalchemy_keep_db(request):
+def sqlalchemy_keep_db(request: FixtureRequest) -> Optional[bool]:
     return request.config.getoption("--sqlalchemy-keep-db")
 
 
 @pytest.fixture(scope="session")
-def app_config(request):
+def app_config(request: FixtureRequest) -> Optional[Mapping[str, str]]:
     """Example of a config file:
 
     [DEFAULT]
     sqlalchemy.url = postgresql://scott:tiger@localhost/test
     """
-    try:
-        import ConfigParser
-    except ImportError:
-        import configparser as ConfigParser
+    import configparser as ConfigParser
 
     config_path = request.config.getoption("--sqlalchemy-config-file")
     if config_path:
@@ -135,7 +135,7 @@ def app_config(request):
     return None
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser: Parser) -> None:
     parser.addoption("--sqlalchemy-connect-url", action="store",
                      default=None,
                      help="Name of the database to connect to")

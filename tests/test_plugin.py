@@ -108,4 +108,4 @@ def test_xdist_naming(pytester: Pytester, db_url: str, request: FixtureRequest) 
     result.assert_outcomes(passed=2)
     if running_under_coverage:
         for item in pytester.path.glob('.coverage.*'):
-            item.rename(request.config.rootdir / item.name)
+            item.rename(request.config.rootpath / item.name)
