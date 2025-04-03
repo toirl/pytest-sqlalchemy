@@ -87,6 +87,9 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
           cache-suffix: ${{ matrix.uv-resolution }}
 
+      - name: Install the project and dependencies
+        run: uv sync --all-extras --dev --resolution ${{ matrix.uv-resolution }}
+
       - name: Run tests
         run: |
           # Install software and run tests
@@ -98,7 +101,7 @@ jobs:
             # 127.0.0.1 is to persuade mysqlclient to use tcp rather than the domain socket :-/
             export DB_URL=mysql://root:mysql@127.0.0.1:3306/test_db
           fi
-          uv run --all-extras --dev $WITH --resolution ${{ matrix.uv-resolution }} -m coverage run -m pytest --sqlalchemy-connect-url=$DB_URL
+          uv run --no-sync $WITH --resolution ${{ matrix.uv-resolution }} -m coverage run -m pytest --sqlalchemy-connect-url=$DB_URL
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
