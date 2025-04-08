@@ -34,7 +34,8 @@ dev = [
 ]
 docs = [
     "furo>=2024.8.6",
-    "sphinx>=8.1.3",
+    # work around https://github.com/astral-sh/uv/issues/12737
+    "sphinx>=7.4.7",
 ]
 
 [build-system]
