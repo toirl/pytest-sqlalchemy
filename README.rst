@@ -1,6 +1,17 @@
 pytest-sqlalchemy
 =================
 
+|Docs|_  |PyPI|_ |Git|_
+
+.. |Docs| image:: https://readthedocs.org/projects/pytest-sqlalchemy/badge/?version=latest
+.. _Docs: https://pytest-sqlalchemy.readthedocs.io/
+
+.. |PyPI| image:: https://badge.fury.io/py/pytest-sqlalchemy.svg
+.. _PyPI: https://pypi.org/project/pytest-sqlalchemy/
+
+.. |Git| image:: https://github.com/toirl/pytest-sqlalchemy/actions/workflows/ci.yml/badge.svg
+.. _Git: https://github.com/toirl/pytest-sqlalchemy
+
 SQLAlchemy related fixtures to handle connections and transactions with SQLAlchemy in tests.
 
 Fixtures
