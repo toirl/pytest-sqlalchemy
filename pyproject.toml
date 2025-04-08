@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "http://github.com/toirl/pytest-sqlalchemy/"
+Homepage = "https://github.com/pytest-dev/pytest-sqlalchemy"
 
 [project.entry-points.pytest11]
 sqlalchemy = "pytest_sqlalchemy"
