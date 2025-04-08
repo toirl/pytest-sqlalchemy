@@ -32,6 +32,11 @@ dev = [
     "mypy>=1.15.0",
     "pytest-xdist>=3.6.1",
 ]
+docs = [
+    "furo>=2024.8.6",
+    # work around https://github.com/astral-sh/uv/issues/12737
+    "sphinx>=7.4.7",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]

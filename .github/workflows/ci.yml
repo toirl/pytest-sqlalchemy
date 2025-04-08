@@ -88,7 +88,7 @@ jobs:
           cache-suffix: ${{ matrix.uv-resolution }}
 
       - name: Install the project and dependencies
-        run: uv sync --all-extras --dev --resolution ${{ matrix.uv-resolution }}
+        run: uv sync --dev --resolution ${{ matrix.uv-resolution }}
 
       - name: Run tests
         run: |
@@ -134,7 +134,7 @@ jobs:
           cache-dependency-glob: "**/pyproject.toml"
 
       - name: Install the project
-        run: uv sync --all-extras --dev
+        run: uv sync --dev
 
       - name: Run tests
         run: uv run mypy pytest_sqlalchemy.py tests
