@@ -138,3 +138,8 @@ jobs:
 
       - name: Run tests
         run: uv run mypy pytest_sqlalchemy.py tests
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cjw296/python-action/check-formatting@v1
