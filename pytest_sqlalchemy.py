@@ -52,7 +52,7 @@ def engine(
 @pytest.fixture(scope="session")
 def db_schema(
     request: FixtureRequest, engine: Engine, sqlalchemy_manage_db: bool, sqlalchemy_keep_db: bool
-) -> Optional[None]:
+) -> None:
     if not sqlalchemy_manage_db:
         return
 
