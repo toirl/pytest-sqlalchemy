@@ -31,6 +31,7 @@ sqlalchemy = "pytest_sqlalchemy"
 dev = [
     "mypy>=1.15.0",
     "pytest-xdist>=3.6.1",
+    "ruff>=0.11.4",
 ]
 docs = [
     "furo>=2024.8.6",
@@ -53,6 +54,12 @@ disallow_incomplete_defs = true
 [[tool.mypy.overrides]]
 module = "sqlalchemy_utils.*"
 ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "preserve"
 
 [tool.pytest.ini_options]
 norecursedirs = ["tests/examples"]
