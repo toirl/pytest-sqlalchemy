@@ -28,9 +28,7 @@ def test_dbsession_fixture(pytester: Pytester, db_url: str) -> None:
 def test_db_schema(pytester: Pytester, new_db_url: str) -> None:
     assert not database_exists(new_db_url)
     pytester.copy_example("tests/examples/test_db_schema.py")
-    result = pytester.runpytest(
-        '--sqlalchemy-connect-url', new_db_url, '--sqlalchemy-manage-db'
-    )
+    result = pytester.runpytest('--sqlalchemy-connect-url', new_db_url, '--sqlalchemy-manage-db')
     result.assert_outcomes(passed=1)
     assert not database_exists(new_db_url)
 
@@ -39,9 +37,7 @@ def test_db_exists_no_keep_db(pytester: Pytester, db_url: str) -> None:
     if not database_exists(db_url):
         create_database(db_url)
     pytester.copy_example("tests/examples/test_db_schema.py")
-    result = pytester.runpytest(
-        '--sqlalchemy-connect-url', db_url, '--sqlalchemy-manage-db'
-    )
+    result = pytester.runpytest('--sqlalchemy-connect-url', db_url, '--sqlalchemy-manage-db')
     result.assert_outcomes(errors=1)
     assert "DB exists, remove it before proceeding" in result.stdout.str()
     assert database_exists(db_url)
@@ -95,14 +91,16 @@ def test_xdist_naming(pytester: Pytester, db_url: str, request: FixtureRequest) 
     # Measuring coverage when running under xdist is pretty tricky:
     if running_under_coverage:
         pyproject_toml = Path(__file__).parent.parent / "pyproject.toml"
-        pytester.makeconftest(dedent(f"""
+        pytester.makeconftest(
+            dedent(f"""
             import coverage, os, sys
             def pytest_configure(config):
                 worker_id = os.environ.get("PYTEST_XDIST_WORKER")
                 if worker_id is not None:
                     os.environ["COVERAGE_PROCESS_START"] = "{pyproject_toml}"
                     coverage.process_startup()
-        """))
+        """)
+        )
     pytester.copy_example("tests/examples/test_xdist.py")
     result = pytester.runpytest('-n', '2', '--sqlalchemy-connect-url', db_url)
     result.assert_outcomes(passed=2)

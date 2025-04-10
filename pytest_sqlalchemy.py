@@ -11,13 +11,17 @@ from sqlalchemy.engine import Connection, create_engine, Engine
 
 
 @pytest.fixture(scope="session")
-def engine(request: FixtureRequest, sqlalchemy_connect_url: Optional[str], app_config: Optional[Dict[str, str]]) -> Engine:
+def engine(
+    request: FixtureRequest,
+    sqlalchemy_connect_url: Optional[str],
+    app_config: Optional[Dict[str, str]],
+) -> Engine:
     """Engine configuration.
     See http://docs.sqlalchemy.org/en/latest/core/engines.html
     for more details.
 
     :sqlalchemy_connect_url: Connection URL to the database. E.g
-    postgresql://scott:tiger@localhost:5432/mydatabase 
+    postgresql://scott:tiger@localhost:5432/mydatabase
     :app_config: Path to a ini config file containing the sqlalchemy.url
     config variable in the DEFAULT section.
     :returns: Engine instance
@@ -38,7 +42,7 @@ def engine(request: FixtureRequest, sqlalchemy_connect_url: Optional[str], app_c
         engine = create_engine(url)  # override engine
 
     def fin() -> None:
-        print ("Disposing engine")
+        print("Disposing engine")
         engine.dispose()
 
     request.addfinalizer(fin)
@@ -46,7 +50,9 @@ def engine(request: FixtureRequest, sqlalchemy_connect_url: Optional[str], app_c
 
 
 @pytest.fixture(scope="session")
-def db_schema(request: FixtureRequest, engine: Engine, sqlalchemy_manage_db: bool, sqlalchemy_keep_db: bool) -> Optional[None]:
+def db_schema(
+    request: FixtureRequest, engine: Engine, sqlalchemy_manage_db: bool, sqlalchemy_keep_db: bool
+) -> None:
     if not sqlalchemy_manage_db:
         return
 
@@ -58,8 +64,9 @@ def db_schema(request: FixtureRequest, engine: Engine, sqlalchemy_manage_db: boo
         sqlalchemy_utils.functions.create_database(engine.url)
 
     if not sqlalchemy_keep_db:
+
         def fin() -> None:
-            print ("Tearing down DB")
+            print("Tearing down DB")
             sqlalchemy_utils.functions.drop_database(engine.url)
 
         request.addfinalizer(fin)
@@ -70,7 +77,7 @@ def connection(request: FixtureRequest, engine: Engine, db_schema: Optional[None
     connection = engine.connect()
 
     def fin() -> None:
-        print ("Closing connection")
+        print("Closing connection")
         connection.close()
 
     request.addfinalizer(fin)
@@ -84,7 +91,7 @@ def transaction(request: FixtureRequest, connection: Connection) -> Connection:
     transaction = connection.begin()
 
     def fin() -> None:
-        print ("Rollback")
+        print("Rollback")
         transaction.rollback()
 
     request.addfinalizer(fin)
@@ -94,6 +101,7 @@ def transaction(request: FixtureRequest, connection: Connection) -> Connection:
 @pytest.fixture()
 def dbsession(request: FixtureRequest, connection: Connection) -> Any:
     from sqlalchemy.orm import sessionmaker
+
     return sessionmaker()(bind=connection)
 
 
@@ -136,22 +144,33 @@ def app_config(request: FixtureRequest) -> Optional[Mapping[str, str]]:
 
 
 def pytest_addoption(parser: Parser) -> None:
-    parser.addoption("--sqlalchemy-connect-url", action="store",
-                     default=None,
-                     help="Name of the database to connect to")
+    parser.addoption(
+        "--sqlalchemy-connect-url",
+        action="store",
+        default=None,
+        help="Name of the database to connect to",
+    )
 
-    parser.addoption("--sqlalchemy-config-file", action="store",
-                     default=None,
-                     help="Path to a config file containing the "
-                     "'sqlalchemy.url' variable in the DEFAULT section "
-                     "of a ini file to define the connect "
-                     "url.")
+    parser.addoption(
+        "--sqlalchemy-config-file",
+        action="store",
+        default=None,
+        help="Path to a config file containing the "
+        "'sqlalchemy.url' variable in the DEFAULT section "
+        "of a ini file to define the connect "
+        "url.",
+    )
 
-    parser.addoption("--sqlalchemy-manage-db", action="store_true",
-                     default=None,
-                     help="Automatically creates and drops database")
+    parser.addoption(
+        "--sqlalchemy-manage-db",
+        action="store_true",
+        default=None,
+        help="Automatically creates and drops database",
+    )
 
-    parser.addoption("--sqlalchemy-keep-db", action="store_true",
-                     default=None,
-                     help="Do not delete database after test suite, "
-                     "allowing for its reuse.")
+    parser.addoption(
+        "--sqlalchemy-keep-db",
+        action="store_true",
+        default=None,
+        help="Do not delete database after test suite, allowing for its reuse.",
+    )
