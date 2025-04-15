@@ -55,11 +55,11 @@ disallow_incomplete_defs = true
 module = "sqlalchemy_utils.*"
 ignore_missing_imports = true
 
+[tool.pytest.ini_options]
+norecursedirs = ["tests/examples"]
+
 [tool.ruff]
 line-length = 100
 
 [tool.ruff.format]
 quote-style = "preserve"
-
-[tool.pytest.ini_options]
-norecursedirs = ["tests/examples"]
