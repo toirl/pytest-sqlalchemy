@@ -1,6 +1,6 @@
 [project]
 name = "pytest-sqlalchemy"
-version = "0.2.1"
+version = "0.3.0"
 description = "pytest plugin with sqlalchemy related fixtures"
 authors = [
     { name = "Torsten Irländer", email = "torsten.irlaender@googlemail.com" }
