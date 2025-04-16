@@ -1,6 +1,6 @@
 [project]
 name = "pytest-sqlalchemy"
-version = "0.2.0"
+version = "0.2.1"
 description = "pytest plugin with sqlalchemy related fixtures"
 authors = [
     { name = "Torsten Irländer", email = "torsten.irlaender@googlemail.com" }
@@ -40,12 +40,16 @@ docs = [
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.coverage.run]
 source = ["pytest_sqlalchemy", "tests"]
 parallel = true
+
+[tool.hatch.build.targets.sdist]
+# paranoidly only include the package in the sdist: https://github.com/pypa/hatch/issues/304
+packages = ["src/pytest_sqlalchemy"]
 
 [tool.mypy]
 disallow_untyped_defs = true
@@ -55,11 +59,11 @@ disallow_incomplete_defs = true
 module = "sqlalchemy_utils.*"
 ignore_missing_imports = true
 
+[tool.pytest.ini_options]
+norecursedirs = ["tests/examples"]
+
 [tool.ruff]
 line-length = 100
 
 [tool.ruff.format]
 quote-style = "preserve"
-
-[tool.pytest.ini_options]
-norecursedirs = ["tests/examples"]

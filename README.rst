@@ -75,7 +75,7 @@ Or override the ``sqlalchemy_connect_url`` fixture on your ``conftest.py`` file:
         return 'postgresql://scott:tiger@localhost:5432/mydatabase'
 
 Development
-----------
+-----------
 
 To get going, in a checkout:
 

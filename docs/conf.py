@@ -7,6 +7,7 @@ extensions = [
 
 intersphinx_mapping = {
     'python': ('http://docs.python.org', None),
+    'sqlalchemy': ('https://docs.sqlalchemy.org/en/20', None),
 }
 
 project = 'pytest-sqlalchemy'
