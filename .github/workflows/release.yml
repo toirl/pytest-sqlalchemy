@@ -13,7 +13,7 @@ jobs:
     outputs:
       tag: ${{ steps.carthorse.outputs.tag }}
     steps:
-      - uses: cjw296/python-action/carthorse@main
+      - uses: cjw296/python-action/carthorse@v1
         id: carthorse
         with:
           check: "true"
@@ -41,6 +41,6 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
-      - uses: cjw296/python-action/carthorse@main
+      - uses: cjw296/python-action/carthorse@v1
         with:
           tag-format: '{version}'
